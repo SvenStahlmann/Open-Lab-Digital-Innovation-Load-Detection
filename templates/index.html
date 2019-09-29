@@ -1,0 +1,85 @@
+<html>
+  <head>
+    <title>Video Streaming Demonstration</title>
+	<!-- FONT -->
+	<link href='//fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
+	<link rel="stylesheet" href="http://getskeleton.com/css/custom.css">
+  </head>
+  <body>
+   <div class="container" style="max-width:640px">
+		<section class="header">
+			<h2 class="title">Configuration Demonstration</h2>
+		
+			<img style="margin-bottom:24px" id="bg" src="{{ url_for('video_feed') }}" onclick="getImageCoordinates(event);">
+			<div style="text-align:left">
+				<p>What you are selecting: <br>
+				  <input type="radio" name="selection" value="bottom-left-corner" checked> bottom-left-corner<br>
+				  <input type="radio" name="selection" value="top-right-corner"> top-right-corner<br>
+				  <div id="bottom-left-corner-value">tottom-left-corner-value: </div>
+				  <div id="top-right-corner-value">bop-right-corner-value: </div>
+				</p>
+				
+				height (units): <input type="text" id="height"><br>
+				Width (units): <input type="text" id="width"><br>
+				<button onclick="sendConfig()">Send Config</button>
+			</div>
+			
+	</div>
+  </body>
+  <script>
+	var bcx = 0;
+	var bcy = 0;
+	var tcx = 0;
+	var tcy = 0;
+	
+	
+	function getImageCoordinates(event) {
+	  var xCoordinate = event.offsetX;
+	  var yCoordinate = event.offsetY;
+	  var radios = document.getElementsByName('selection');
+	  var targetID = '';
+	  for (var i = 0, length = radios.length; i < length; i++){
+		 if (radios[i].checked){
+		  // do whatever you want with the checked radio
+		  targetID = radios[i].value + '-value';
+		  // only one radio can be logically checked, don't check the rest
+		  break;
+		 }
+		}
+		console.log(targetID);
+		if(targetID == "bottom-left-corner-value"){
+			bcx = xCoordinate;
+			bcy = yCoordinate;
+		}
+		else{
+			tcx = xCoordinate;
+			tcy = yCoordinate;
+		}
+		//show the values on the page
+		document.getElementById(targetID).innerHTML = targetID + ' = x: ' + xCoordinate + ' , y: ' + yCoordinate;
+	}
+	function sendConfig() {
+		url = '/set_config'
+		height = document.getElementById('height').value
+		width = document.getElementById('width').value
+		config = { bcx : bcx , bcy : bcy , tcx : tcx , tcy : tcy, width : width , height : height}
+		axios({
+			method: 'post',
+			url: url,
+			data: {
+				config
+			}
+		})
+		.then(data=>console.log(data))
+		.catch(err=>console.log(err));
+		
+		console.log(bcx)
+		console.log(bcy)
+		console.log(tcx)
+		console.log(tcy)
+	}
+  </script>
+</html>
